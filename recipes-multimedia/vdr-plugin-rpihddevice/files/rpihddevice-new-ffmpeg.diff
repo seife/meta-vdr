@@ -1,0 +1,134 @@
+diff --git a/Makefile b/Makefile
+index 2b796bb..1f75c8b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -59,7 +59,7 @@ VCLIBDIR =$(SDKSTAGE)/usr/lib
+ 
+ INCLUDES += -I$(ILCDIR) -I$(VCINCDIR)/interface/vcos/pthreads -I$(VCINCDIR)/interface/vmcs_host/linux
+ 
+-LDFLAGS += -L$(VCLIBDIR) -lbcm_host -lvcos -lvchiq_arm -lopenmaxil -lGLESv2 -lEGL -lpthread -lrt -lavcodec -lavformat
++LDFLAGS += -L$(VCLIBDIR) -lbcm_host -lvcos -lvchiq_arm -lopenmaxil -lGLESv2 -lEGL -lpthread -lrt -lavcodec -lavformat -lswresample
+ LDFLAGS += -Wl,--whole-archive $(ILCDIR)/libilclient.a -Wl,--no-whole-archive
+ 
+ DEBUG ?= 0
+diff --git a/audio.c b/audio.c
+index 7548ecf..805bf4b 100644
+--- a/audio.c
++++ b/audio.c
+@@ -802,6 +802,13 @@ void cRpiAudioDecoder::Action(void)
+ 	cAudioCodec::eCodec codec = cAudioCodec::eInvalid;
+ 	OMX_BUFFERHEADERTYPE *buf = 0;
+ 
++	/* sample format conversion */
++	SwrContext *swr = NULL;
++	uint8_t *obuf = NULL;
++	int obuf_sz = 0; /* in samples */
++	int obuf_sz_max = 0;
++
++
+     AVFrame *frame = avcodec_alloc_frame();
+ 	if (!frame)
+ 	{
+@@ -877,7 +884,7 @@ void cRpiAudioDecoder::Action(void)
+ 			int len = m_passthrough ? m_parser->Packet()->size :
+ 				av_samples_get_buffer_size(NULL,
+ 					outputChannels == 6 ? 8 : outputChannels, frame->nb_samples,
+-					m_codecs[codec].context->sample_fmt, 1);
++					AV_SAMPLE_FMT_S16, 1);
+ 
+ 			if (len > (signed)(buf->nAllocLen - buf->nFilledLen) || len < 0)
+ 			{
+@@ -900,12 +907,50 @@ void cRpiAudioDecoder::Action(void)
+ 			}
+ 			else if (frame->nb_samples)
+ 			{
++				int out_linesize;
++				if (! swr)
++				{
++					AVCodecContext *c = m_codecs[codec].context;
++					uint64_t layout;
++					if (c->request_channel_layout == AV_CH_LAYOUT_NATIVE)
++						layout = c->channel_layout;
++					else
++						layout = c->request_channel_layout;
++					swr = swr_alloc_set_opts(swr,
++						layout, AV_SAMPLE_FMT_S16, samplingRate,	/* out */
++						c->channel_layout, c->sample_fmt, samplingRate,	/* in */
++						0, NULL);
++					if (!swr)
++					{
++						ELOG("failed to allocate SW resampling context!");
++						/* CRASH */
++					}
++					swr_init(swr);
++				}
++				obuf_sz = frame->nb_samples;
++				if (obuf_sz > obuf_sz_max)
++				{
++					av_free(obuf);
++					if (av_samples_alloc(&obuf, &out_linesize, outputChannels,
++							frame->nb_samples, AV_SAMPLE_FMT_S16, 1) < 0)
++					{
++						ELOG("av_samples_alloc for SW resample failed.");
++						/* crash! */
++						break;
++					}
++					ELOG("obuf %d -> %d", obuf_sz_max, obuf_sz);
++					obuf_sz_max = obuf_sz;
++				}
++				obuf_sz = swr_convert(swr, &obuf, obuf_sz,
++						(const uint8_t **)frame->extended_data, frame->nb_samples);
++
+ 				if (outputChannels == 6)
+ 				{
+-					int32_t* src = (int32_t*)frame->data[0];
++					int32_t* src = (int32_t*)obuf;
+ 					int32_t* dst = (int32_t*)(buf->pBuffer + buf->nFilledLen);
+ 
+ 					// interleaved copy to fit 5.1 data into 8 channels
++					// TODO: probably libswscale can do this, too.
+ 					for (int i = 0; i < frame->nb_samples; i++)
+ 					{
+ 						*dst++ = *src++; // LF & RF
+@@ -915,7 +960,7 @@ void cRpiAudioDecoder::Action(void)
+ 					}
+ 				}
+ 				else
+-					memcpy(buf->pBuffer + buf->nFilledLen, frame->data[0], len);
++					memcpy(buf->pBuffer + buf->nFilledLen, obuf, len);
+ 
+ 				buf->nFilledLen += len;
+ 				avcodec_get_frame_defaults(frame);
+@@ -925,6 +970,11 @@ void cRpiAudioDecoder::Action(void)
+ 			if (m_parser->GetPts())
+ 				break;
+ 		}
++		if (swr)
++		{
++			swr_free(&swr);
++			swr = NULL;
++		}
+ 
+ 		// -- reset --
+ 		if (m_reset)
+@@ -949,7 +999,7 @@ void cRpiAudioDecoder::Action(void)
+ 		if (m_parser->Empty() && !frame->nb_samples)
+ 			m_wait->Wait(50);
+ 	}
+-
++	av_free(obuf);
+ 	av_free(frame);
+ 	SetCodec(cAudioCodec::eInvalid, outputChannels, samplingRate);
+ 	DLOG("cAudioDecoder() thread ended");
+diff --git a/audio.h b/audio.h
+index cf57dba..fdb6992 100644
+--- a/audio.h
++++ b/audio.h
+@@ -9,6 +9,7 @@
+ 
+ extern "C" {
+ #include <libavcodec/avcodec.h>
++#include <libswresample/swresample.h>
+ }
+ 
+ #include <vdr/thread.h>

@@ -1,0 +1,31 @@
+diff --git a/Makefile b/Makefile
+index 3012449..2b796bb 100644
+--- a/Makefile
++++ b/Makefile
+@@ -54,10 +54,10 @@ DEFINES += -Wno-write-strings -fpermissive
+ CXXFLAGS += -D__STDC_CONSTANT_MACROS
+ 
+ ILCDIR   =ilclient
+-VCINCDIR =$(SDKSTAGE)/opt/vc/include
+-VCLIBDIR =$(SDKSTAGE)/opt/vc/lib
++VCINCDIR =$(SDKSTAGE)/usr/include
++VCLIBDIR =$(SDKSTAGE)/usr/lib
+ 
+-INCLUDES += -I$(ILCDIR) -I$(VCINCDIR) -I$(VCINCDIR)/interface/vcos/pthreads -I$(VCINCDIR)/interface/vmcs_host/linux
++INCLUDES += -I$(ILCDIR) -I$(VCINCDIR)/interface/vcos/pthreads -I$(VCINCDIR)/interface/vmcs_host/linux
+ 
+ LDFLAGS += -L$(VCLIBDIR) -lbcm_host -lvcos -lvchiq_arm -lopenmaxil -lGLESv2 -lEGL -lpthread -lrt -lavcodec -lavformat
+ LDFLAGS += -Wl,--whole-archive $(ILCDIR)/libilclient.a -Wl,--no-whole-archive
+diff --git a/ilclient/Makefile b/ilclient/Makefile
+index 7a967f4..f149064 100644
+--- a/ilclient/Makefile
++++ b/ilclient/Makefile
+@@ -3,7 +3,7 @@ LIB=libilclient.a
+ 
+ CFLAGS+=-DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -Wall -g -DHAVE_LIBOPENMAX=2 -DOMX -DOMX_SKIP64BIT -ftree-vectorize -pipe -DUSE_EXTERNAL_OMX -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM -Wno-psabi
+ 
+-INCLUDES+=-I$(SDKSTAGE)/opt/vc/include/ -I$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads -I$(SDKSTAGE)/opt/vc/include/interface/vmcs_host/linux
++INCLUDES+=-I$(SDKSTAGE)/usr/include/interface/vcos/pthreads -I$(SDKSTAGE)/usr/include/interface/vmcs_host/linux
+ 
+ all: $(LIB)
+ 
