@@ -61,7 +61,7 @@ do_configure_append() {
 
 # override oe_runmake: the -e in the original ignores Make.config...
 oe_runmake () {
-	bbnote make ${PARALLEL_MAKE} MAKEFLAGS= INCLUDES=-I${STAGING_INCDIR}/freetype2 "$@"
+	bbnote make ${PARALLEL_MAKE} MAKEFLAGS= "$@"
 	make ${PARALLEL_MAKE} MAKEFLAGS= INCLUDES=-I${STAGING_INCDIR}/freetype2 "$@" || die "oe_runmake failed"
 }
 
