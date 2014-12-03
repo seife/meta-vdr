@@ -5,7 +5,7 @@ COMPATIBLE_MACHINE = "raspberrypi"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRCREV = "${AUTOREV}"
-PV = "0.0.9+git${SRCPV}"
+PV = "0.0.10+git${SRCPV}"
 
 SRC_URI = " \
 	git://projects.vdr-developer.org/vdr-plugin-rpihddevice.git;protocol=git \
