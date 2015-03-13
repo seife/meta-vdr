@@ -4,11 +4,10 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=892f569a555ba9c07a568a7c0c4fa63a"
 COMPATIBLE_MACHINE = "raspberrypi"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-SRC_URI = "http://projects.vdr-developer.org/attachments/download/1817/vdr-rpihddevice-0.0.10.tgz"
-SRC_URI[md5sum] = "29b50c0acd756565a7fd3633ee208e1c"
-SRC_URI[sha256sum] = "3f6d9165e702d03e836e34531d5012825918613110f9e9215b8c48b9f5333e2e"
-
-PV = "0.0.10"
+PV = "0.0.11"
+SRC_URI = "http://projects.vdr-developer.org/attachments/download/1861/vdr-rpihddevice-${PV}.tgz"
+SRC_URI[md5sum] = "0960934379adf8bb5301b17caddd3ada"
+SRC_URI[sha256sum] = "f2dd9d392ab5585fbdcc55ea3c22612f2becaf878db4b96b69bd603dc145d05b"
 
 S = "${WORKDIR}/rpihddevice-${PV}"
 
@@ -17,9 +16,13 @@ ASNEEDED = ""
 DEPENDS = " \
 	vdr \
 	virtual/egl \
+	ffmpeg \
 "
 
-EXTRA_OEMAKE = ' \
+# VDR has a Make.config and with "-e" this does not get used :-(
+EXTRA_OEMAKE_remove = "-e"
+
+EXTRA_OEMAKE_append = ' \
 	SDKSTAGE="${STAGING_DIR_HOST}" \
 	VCINCDIR="${STAGING_DIR_HOST}/usr/include" \
 	VCLIBDIR="${STAGING_DIR_HOST}/usr/lib" \

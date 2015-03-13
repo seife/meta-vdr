@@ -5,7 +5,7 @@ COMPATIBLE_MACHINE = "raspberrypi"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRCREV = "${AUTOREV}"
-PV = "0.0.10+git${SRCPV}"
+PV = "0.0.11+git${SRCPV}"
 
 SRC_URI = " \
 	git://projects.vdr-developer.org/vdr-plugin-rpihddevice.git;protocol=git \
@@ -20,7 +20,10 @@ DEPENDS = " \
 	virtual/egl \
 "
 
-EXTRA_OEMAKE = ' \
+# VDR has a Make.config and with "-e" this does not get used :-(
+EXTRA_OEMAKE_remove = "-e"
+
+EXTRA_OEMAKE_append = ' \
 	SDKSTAGE="${STAGING_DIR_HOST}" \
 	VCINCDIR="${STAGING_DIR_HOST}/usr/include" \
 	VCLIBDIR="${STAGING_DIR_HOST}/usr/lib" \
