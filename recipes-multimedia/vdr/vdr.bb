@@ -6,12 +6,12 @@ LICENSE = "GPLv2"
 AUTHOR = "Klaus Schmidinger"
 
 # the current version
-PV = "2.0.6"
+PV = "2.2.0"
 
 SRC_URI = "ftp://ftp.tvdr.de/vdr/${P}.tar.bz2"
 
-SRC_URI[md5sum] = "f6916524c302f3209fd0af507ab97387"
-SRC_URI[sha256sum] = "c33c6431726378d5af575d8cfcacd34a50d17334e091dc4a095b6b75bc99b972"
+SRC_URI[md5sum] = "8853f64c0fc3d41ffd3b4bfc6f0a14b7"
+SRC_URI[sha256sum] = "7c259e1ed1f39d93d23df1d5d0f85dd2a1fa9ec1dadff79e5833e2ff3ebf6c4e"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=892f569a555ba9c07a568a7c0c4fa63a"
 # EXTRA_OEMAKE += "INCLUDES=-I${STAGING_INCDIR}/freetype2"
@@ -20,9 +20,11 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=892f569a555ba9c07a568a7c0c4fa63a"
 SRC_URI_append = " \
 	file://vdr-1.7.21-pluginmissing.patch \
 	file://vdr-1.7.29-menuselection.patch \
-	file://vdr-2.0.3-dynamite.patch \
 	file://vdr-2.0.4-MainMenuHooks-v1_0_1.patch \
 "
+#
+#	file://vdr-2.0.3-dynamite.patch \
+#
 
 DEPENDS = " \
 	fontconfig \
