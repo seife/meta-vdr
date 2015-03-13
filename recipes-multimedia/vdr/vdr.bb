@@ -36,6 +36,16 @@ DEPENDS = " \
 	ncurses \
 "
 
+RRECOMMENDS_${PN} = " \
+	glibc-gconv-iso8859-1 \
+	glibc-gconv-iso8859-2 \
+	glibc-gconv-iso8859-5 \
+	glibc-gconv-iso8859-7 \
+	glibc-gconv-iso8859-9 \
+	glibc-gconv-iso8859-15 \
+	liberation-fonts \
+"
+
 PLUGINDIR = "${libdir}/vdr"
 
 CFLAGS += "-Wl,--hash-style=gnu -fPIC"
