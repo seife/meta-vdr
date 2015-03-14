@@ -14,6 +14,6 @@ inherit cmake
 OECMAKE_SOURCEPATH = "${S}/scripts"
 EXTRA_OECMAKE = " -DBUILD_SHARED_LIBS=ON "
 
-FILES_${PN}-devel += " \
+FILES_${PN}-dev += " \
 	${libdir}/cmake \
 "
