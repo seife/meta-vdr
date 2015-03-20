@@ -7,6 +7,8 @@ AUTHOR = "Klaus Schmidinger"
 
 # the current version
 PV = "2.2.0"
+# has to be manually adjusted
+VDR_APIVER = "2.2.0"
 
 SRC_URI = "ftp://ftp.tvdr.de/vdr/${P}.tar.bz2"
 
@@ -46,11 +48,19 @@ RRECOMMENDS_${PN} = " \
 	liberation-fonts \
 "
 
+RPROVIDES_${PN} += "\
+	vdrapi-${VDR_APIVER} \
+"
+
 PLUGINDIR = "${libdir}/vdr"
 
 CFLAGS += "-Wl,--hash-style=gnu -fPIC"
 
 do_configure_append() {
+	APIVER=$(sed -n '/#define APIVERSION/{s/^.*"\(.*\)".*$/\1/;p}' config.h)
+	if [ "$APIVER" != "${VDR_APIVER}" ]; then
+		bbfatal "VDR_APIVER is different from version in config.h: $APIVER != ${VDR_APIVER}"
+	fi
     cat > Make.config <<-EOF
 	## The C compiler options:
 	CFLAGS   = ${CFLAGS} -Wall
