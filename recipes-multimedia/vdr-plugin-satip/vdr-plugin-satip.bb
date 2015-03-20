@@ -8,32 +8,13 @@ SRC_URI[sha256sum] = "07c9ec9d438965ab09d17b00f32fbc1c28354771745db1fb21a421b5a6
 
 PV = "2.2.0"
 
-S = "${WORKDIR}/satip-${PV}"
-
-ASNEEDED = ""
+inherit vdr-plugin
 
 DEPENDS = " \
-	vdr \
 	curl \
 	pugixml \
 "
 
-# VDR has a Make.config and with "-e" this does not get used :-(
-EXTRA_OEMAKE_remove = "-e"
-
 # as long as we don't build a git version, reset this to avoid picking up the yocto git tag
 EXTRA_OEMAKE_append = " GITTAG='' "
 EXTRA_OEMAKE_append = " SATIP_DEBUG=1 "
-
-do_install() {
-	oe_runmake DESTDIR=${D} install
-}
-
-FILES_${PN} += " \
-	${libdir}/vdr \
-"
-
-FILES_${PN}-dbg += " \
-	${libdir}/vdr/.debug/* \
-"
-
