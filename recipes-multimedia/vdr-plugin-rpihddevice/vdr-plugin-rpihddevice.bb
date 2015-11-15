@@ -4,10 +4,10 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=892f569a555ba9c07a568a7c0c4fa63a"
 COMPATIBLE_MACHINE = "raspberrypi"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PV = "0.0.11"
-SRC_URI = "http://projects.vdr-developer.org/attachments/download/1861/vdr-rpihddevice-${PV}.tgz"
-SRC_URI[md5sum] = "0960934379adf8bb5301b17caddd3ada"
-SRC_URI[sha256sum] = "f2dd9d392ab5585fbdcc55ea3c22612f2becaf878db4b96b69bd603dc145d05b"
+PV = "1.0.0"
+SRC_URI = "http://projects.vdr-developer.org/attachments/download/1966/vdr-rpihddevice-${PV}.tgz"
+SRC_URI[md5sum] = "4c3d040812872897abaffa7cf01d9b7a"
+SRC_URI[sha256sum] = "b7bbc29fe75434caaa0f8157a701be31553e6763f94c39e2755ded03354f9ab1"
 
 S = "${WORKDIR}/rpihddevice-${PV}"
 
